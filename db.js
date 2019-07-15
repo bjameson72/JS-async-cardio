@@ -54,16 +54,7 @@ function reset() {
  * @param {string} file
  * @param {string} key
  */
-async function get(file, key) {
-  return fs
-    .readFile(`./${file}`, 'utf8')
-    .then(data =>
-      fs.appendFile('./log.txt', `${JSON.parse(data)[key]} ${Date.now()}\n`)
-    )
-    .catch(err =>
-      fs.appendFile('./log.txt', `error reading file ${file} ${Date.now()}\n`)
-    );
-}
+async function get(file, key) {}
 
 /**
  * Sets the value of object[key] and rewrites object to file
