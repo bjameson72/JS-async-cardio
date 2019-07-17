@@ -1,4 +1,4 @@
-const fs = require('fs').promises;
+const fs = require(`fs`).promises;
 /*
 All of your functions must return a promise!
 */
@@ -21,31 +21,31 @@ Errors should also be logged (preferably in a human-readable format)
  */
 function reset() {
   const andrew = fs.writeFile(
-    './andrew.json',
+    `./andrew.json`,
     JSON.stringify({
-      firstname: 'Andrew',
-      lastname: 'Maney',
-      email: 'amaney@talentpath.com',
+      firstname: `Andrew`,
+      lastname: `Maney`,
+      email: `amaney@talentpath.com`,
     })
   );
   const scott = fs.writeFile(
-    './scott.json',
+    `./scott.json`,
     JSON.stringify({
-      firstname: 'Scott',
-      lastname: 'Roberts',
-      email: 'sroberts@talentpath.com',
-      username: 'scoot',
+      firstname: `Scott`,
+      lastname: `Roberts`,
+      email: `sroberts@talentpath.com`,
+      username: `scoot`,
     })
   );
   const post = fs.writeFile(
-    './post.json',
+    `./post.json`,
     JSON.stringify({
-      title: 'Async/Await lesson',
-      description: 'How to write asynchronous JavaScript',
-      date: 'July 15, 2019',
+      title: `Async/Await lesson`,
+      description: `How to write asynchronous JavaScript`,
+      date: `July 15, 2019`,
     })
   );
-  const log = fs.writeFile('./log.txt', '');
+  const log = fs.writeFile(`./log.txt`, ``);
   return Promise.all([andrew, scott, post, log]);
 }
 
