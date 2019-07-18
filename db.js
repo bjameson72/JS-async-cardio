@@ -1,4 +1,4 @@
-const fs = require('fs').promises;
+const fs = require("fs").promises;
 /*
 All of your functions must return a promise!
 */
@@ -21,7 +21,20 @@ Errors should also be logged (preferably in a human-readable format)
  * @param {string} file
  * @param {string} key
  */
-function get(file, key) {}
+function get(file, key) {
+  // 1. read file
+  // 2. handle promise -> data
+  // return fs.readFile(file, "utf8").then(data => {
+  //   const parsed = JSON.parse(data);
+  //   // 4. use the key to get the value at object (key)
+  //   const value = parsed(key);
+  //   // 5. append the log file with the above value
+  //   return log(value);
+  return fs
+    .readFile(`./${file}`, "utf8")
+    .then(data => fs.appendFile("./log.txt", `${JSON.stringify(data[key])} ${Date.now()}\n`))
+    .catch(err => fs.appendFile("./log.txt", `error reading file ${file} ${Date.now()}\n`));
+}
 
 /**
  * Sets the value of object[key] and rewrites object to file
@@ -29,28 +42,66 @@ function get(file, key) {}
  * @param {string} key
  * @param {string} value
  */
-function set(file, key, value) {}
+async function set(file, key, value) {
+  // return fs
+  //   .readFile(`./${file}`, "utf8")
+  //   .then(data => fs.appendFile("./log.txt", `${JSON.stringify(data[key])} ${Date.now()}\n`))
+  //   .catch(err => fs.appendFile("./log.txt", `error reading file ${file} ${Date.now()}\n`));
+  try {
+    const data = await fs.readFile(file, "utf8");
+    const parsed = JSON.parse(data);
+    parsed[key] = value;
+    const stringed = JSON.stringify(parsed);
+    return fs.writeFile(file, stringed);
+  } catch (err) {
+    console.log(`Error ${err}`);
+  }
+}
 
 /**
  * Deletes key from object and rewrites object to file
  * @param {string} file
  * @param {string} key
  */
-function remove(file, key) {}
+async function remove(file, key) {
+  try {
+    const data = await fs.readFile(file, "utf8");
+    const parsed = JSON.parse(data);
+    delete parsed[key];
+    const stringed = JSON.stringify(parsed);
+    return fs.writeFile(file, stringed);
+  } catch (err) {
+    console.log(`Error ${err}`);
+  }
+}
 
 /**
  * Deletes file.
  * Gracefully errors if the file does not exist.
  * @param {string} file
  */
-function deleteFile(file) {}
+async function deleteFile(file) {
+  try {
+    const data = await fs.access(file);
+    return fs.unlink(file);
+    // const del = fs.unlink(data);
+  } catch (err) {
+    console.log(`Error ${err}`);
+  }
+}
 
 /**
  * Creates file with an empty object inside.
  * Gracefully errors if the file already exists.
  * @param {string} file JSON filename
  */
-function createFile(file) {}
+async function createFile(file) {
+  try {
+    return await fs.writeFile(file, JSON.stringify({}));
+  } catch (err) {
+    console.log(`Error ${err}`);
+  }
+}
 
 /**
  * Merges all data into a mega object and logs it.
@@ -70,7 +121,7 @@ function createFile(file) {}
  *    }
  * }
  */
-function mergeData() {}
+function mergeData(fileA, fileB) {}
 
 /**
  * Takes two files and logs all the properties as a list without duplicates
