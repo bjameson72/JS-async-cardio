@@ -17,6 +17,39 @@ Errors should also be logged (preferably in a human-readable format)
 */
 
 /**
+ * Resets the database (does not touch added files)
+ */
+function reset() {
+  const andrew = fs.writeFile(
+    `./andrew.json`,
+    JSON.stringify({
+      firstname: `Andrew`,
+      lastname: `Maney`,
+      email: `amaney@talentpath.com`,
+    })
+  );
+  const scott = fs.writeFile(
+    `./scott.json`,
+    JSON.stringify({
+      firstname: `Scott`,
+      lastname: `Roberts`,
+      email: `sroberts@talentpath.com`,
+      username: `scoot`,
+    })
+  );
+  const post = fs.writeFile(
+    `./post.json`,
+    JSON.stringify({
+      title: `Async/Await lesson`,
+      description: `How to write asynchronous JavaScript`,
+      date: `July 15, 2019`,
+    })
+  );
+  const log = fs.writeFile(`./log.txt`, ``);
+  return Promise.all([andrew, scott, post, log]);
+}
+
+/**
  * Logs the value of object[key]
  * @param {string} file
  * @param {string} key
@@ -32,8 +65,12 @@ function get(file, key) {
   //   return log(value);
   return fs
     .readFile(`./${file}`, "utf8")
-    .then(data => fs.appendFile("./log.txt", `${JSON.stringify(data[key])} ${Date.now()}\n`))
-    .catch(err => fs.appendFile("./log.txt", `error reading file ${file} ${Date.now()}\n`));
+    .then(data =>
+      fs.appendFile("./log.txt", `${JSON.stringify(data[key])} ${Date.now()}\n`)
+    )
+    .catch(err =>
+      fs.appendFile("./log.txt", `error reading file ${file} ${Date.now()}\n`)
+    );
 }
 
 /**
@@ -163,4 +200,5 @@ module.exports = {
   union,
   intersect,
   difference,
+  reset,
 };
