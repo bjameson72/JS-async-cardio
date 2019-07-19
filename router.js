@@ -1,7 +1,8 @@
 const url = require("url");
-const { getHome, getStatus, setPatch } = require("./controller");
+const { postWrite, notFound, getHome, getStatus, setPatch } = require("./controller");
 
 exports.handleRoutes = function(request, response) {
+  // const { pathname } = url.parse
   if (request.url === "/" && request.method === "GET") {
     return getHome(request, response);
   }
@@ -16,4 +17,11 @@ exports.handleRoutes = function(request, response) {
     // fire off db set method
     return setPatch(request, response);
   }
+
+  if (parsedUrl.pathname.startsWith("/write") && request.method === "POST") {
+    return postWrite(request, response, parsedUrl.pathname);
+  }
+
+  //   handle any routes that weren't found
+  notFound(request, response);
 };

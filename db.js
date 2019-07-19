@@ -65,12 +65,8 @@ function get(file, key) {
   //   return log(value);
   return fs
     .readFile(`./${file}`, "utf8")
-    .then(data =>
-      fs.appendFile("./log.txt", `${JSON.stringify(data[key])} ${Date.now()}\n`)
-    )
-    .catch(err =>
-      fs.appendFile("./log.txt", `error reading file ${file} ${Date.now()}\n`)
-    );
+    .then(data => fs.appendFile("./log.txt", `${JSON.stringify(data[key])} ${Date.now()}\n`))
+    .catch(err => fs.appendFile("./log.txt", `error reading file ${file} ${Date.now()}\n`));
 }
 
 /**
@@ -136,7 +132,8 @@ async function createFile(file) {
   try {
     return await fs.writeFile(file, JSON.stringify({}));
   } catch (err) {
-    console.log(`Error ${err}`);
+    await fs.writeFile(file, JSON.stringify(content));
+    return console.log(`${file}: created`);
   }
 }
 
