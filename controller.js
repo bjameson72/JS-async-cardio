@@ -79,6 +79,44 @@ exports.postWrite = async (request, response, pathname) => {
   });
 };
 
+exports.deleteFile = (request, response, pathname) => {
+  // event emitted when the request has received all of the data
+  // request.on('end', async () => {
+  // parse our data array
+  const filename = pathname.split("/")[2];
+  db.deleteFile(filename)
+    .then(() => {
+      response.writeHead(204);
+      console.log(`${filename} successfully deleted`);
+      response.end("succesfully deleted");
+    })
+    .catch(err => {
+      response.writeHead(400, {
+        "Content-Type": "text/html",
+      });
+      response.end(err.message);
+    });
+};
+
+exports.getFile = (request, response, pathname) => {
+  // event emitted when the request has received all of the data
+  // request.on('end', async () => {
+  // parse our data array
+  db.getFile(pathname.split("/")[2])
+    .then(body => {
+      response.writeHead(200, {
+        "Content-Type": "application/json",
+      });
+      response.end(body);
+    })
+    .catch(err => {
+      response.writeHead(400, {
+        "Content-Type": "text/html",
+      });
+      response.end(err.message);
+    });
+};
+
 /*
 ******Handled above w different export method**********
 module.exports {

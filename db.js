@@ -15,6 +15,11 @@ ex after running delete('user.json'):
 
 Errors should also be logged (preferably in a human-readable format)
 */
+async function log(value, err) {
+  await fs.appendFile("log.txt", `\n${value} ${Date.now()}\n`);
+  // Pass along (throw) error if it exists
+  if (err) throw err;
+}
 
 /**
  * Resets the database (does not touch added files)
@@ -87,7 +92,7 @@ async function set(file, key, value) {
     const stringed = JSON.stringify(parsed);
     return fs.writeFile(file, stringed);
   } catch (err) {
-    console.log(`Error ${err}`);
+    log(`Error ${err}`);
   }
 }
 
@@ -104,7 +109,7 @@ async function remove(file, key) {
     const stringed = JSON.stringify(parsed);
     return fs.writeFile(file, stringed);
   } catch (err) {
-    console.log(`Error ${err}`);
+    log(`Error ${err}`);
   }
 }
 
@@ -119,7 +124,7 @@ async function deleteFile(file) {
     return fs.unlink(file);
     // const del = fs.unlink(data);
   } catch (err) {
-    console.log(`Error ${err}`);
+    log(`Error ${err}`);
   }
 }
 
@@ -128,12 +133,12 @@ async function deleteFile(file) {
  * Gracefully errors if the file already exists.
  * @param {string} file JSON filename
  */
-async function createFile(file) {
+async function createFile(file, content) {
   try {
     return await fs.writeFile(file, JSON.stringify({}));
   } catch (err) {
     await fs.writeFile(file, JSON.stringify(content));
-    return console.log(`${file}: created`);
+    return log(`${file}: created`);
   }
 }
 
@@ -155,7 +160,20 @@ async function createFile(file) {
  *    }
  * }
  */
-function mergeData(fileA, fileB) {}
+async function mergeData() {
+  try {
+    const megaObj = {};
+    const files = await fs.readdir(`./database/`);
+    for await (const file of files) {
+      const trimmedFileName = file.slice(0, file.indexOf("."));
+      megaObj[trimmedFileName] = JSON.parse(await fs.readFile(`./database/${file}`, "utf8"));
+    }
+    log(JSON.stringify(megaObj));
+    return JSON.stringify(megaObj);
+  } catch (err) {
+    return log(`ERROR ${err}`, err);
+  }
+}
 
 /**
  * Takes two files and logs all the properties as a list without duplicates
@@ -165,7 +183,23 @@ function mergeData(fileA, fileB) {}
  *  union('scott.json', 'andrew.json')
  *  // ['firstname', 'lastname', 'email', 'username']
  */
-function union(fileA, fileB) {}
+async function union(fileA, fileB) {
+  try {
+    const props = [];
+    const dataA = await fs.readFile(`./database/${fileA}`, "utf-8");
+    const dataB = await fs.readFile(`./database/${fileB}`, "utf-8");
+    const parsedA = JSON.parse(dataA);
+    const parsedB = JSON.parse(dataB);
+    Object.keys(parsedA).forEach(key => props.push(key));
+    Object.keys(parsedB).forEach(key => {
+      if (!props.includes(key)) props.push(key);
+    });
+    log(`[${props}]`);
+    return JSON.stringify(props);
+  } catch (err) {
+    return log(`ERROR no such file or directory ${fileA} or ${fileB}`, err);
+  }
+}
 
 /**
  * Takes two files and logs all the properties that both objects share
@@ -175,7 +209,25 @@ function union(fileA, fileB) {}
  *    intersect('scott.json', 'andrew.json')
  *    // ['firstname', 'lastname', 'email']
  */
-function intersect(fileA, fileB) {}
+async function intersect(fileA, fileB) {
+  try {
+    const props = [];
+    const dataA = await fs.readFile(`./database/${fileA}`, "utf-8");
+    const dataB = await fs.readFile(`./database/${fileB}`, "utf-8");
+    const parsedA = JSON.parse(dataA);
+    const parsedB = JSON.parse(dataB);
+    Object.keys(parsedA).forEach(key => {
+      if (Object.keys(parsedB).includes(key)) props.push(key);
+    });
+    Object.keys(parsedB).forEach(key => {
+      if (!props.includes(key)) props.push(key);
+    });
+    log(`[${props}]`);
+    return JSON.stringify(props);
+  } catch (err) {
+    return log(`ERROR no such file or directory ${fileA} or ${fileB}`, err);
+  }
+}
 
 /**
  * Takes two files and logs all properties that are different between the two objects
@@ -185,7 +237,25 @@ function intersect(fileA, fileB) {}
  *    difference('scott.json', 'andrew.json')
  *    // ['username']
  */
-function difference(fileA, fileB) {}
+async function difference(fileA, fileB) {
+  try {
+    const props = [];
+    const dataA = await fs.readFile(`./database/${fileA}`, "utf-8");
+    const dataB = await fs.readFile(`./database/${fileB}`, "utf-8");
+    const parsedA = JSON.parse(dataA);
+    const parsedB = JSON.parse(dataB);
+    Object.keys(parsedA).forEach(key => {
+      if (!Object.keys(parsedB).includes(key)) props.push(key);
+    });
+    Object.keys(parsedB).forEach(key => {
+      if (!Object.keys(parsedA).includes(key)) props.push(key);
+    });
+    console.log(`[${props}]`);
+    return JSON.stringify(props);
+  } catch (err) {
+    return log(`ERROR no such file or directory ${fileA} or ${fileB}`, err);
+  }
+}
 
 module.exports = {
   get,
